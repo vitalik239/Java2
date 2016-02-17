@@ -34,14 +34,15 @@ public final class FirstPartTasks {
 
     // Список альбомов, в которых есть хотя бы один трек с рейтингом более 95, отсортированный по названию
     public static List<Album> sortedFavorites(Stream<Album> albums) {
+        final int rating = 95;
         return albums.filter(album -> {
-                    for (Track s : album.getTracks()) {
-                        if (s.getRating() > 95) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }).
+            for (Track s : album.getTracks()) {
+                if (s.getRating() > rating) {
+                    return true;
+                }
+            }
+            return false;
+        }).
                 sorted((a, b) -> a.getName().compareTo(b.getName())).collect(
                 Collectors.toList()
         );
@@ -86,8 +87,9 @@ public final class FirstPartTasks {
                         s -> s,
                         s -> {
                             int mx = 0;
-                            for (Track x : s.getTracks())
+                            for (Track x : s.getTracks()) {
                                 mx = Math.max(x.getRating(), mx);
+                            }
                             return mx;
                         }
                 )).entrySet().stream().sorted(Comparator.

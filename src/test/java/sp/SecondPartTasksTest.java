@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 
 import static sp.SecondPartTasks.*;
 
+
 public class SecondPartTasksTest {
 
     @Test

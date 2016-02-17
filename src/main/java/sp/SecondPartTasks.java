@@ -2,7 +2,6 @@ package sp;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public final class SecondPartTasks {
 
@@ -15,7 +14,8 @@ public final class SecondPartTasks {
 
     // В квадрат с длиной стороны 1 вписана мишень.
     // Стрелок атакует мишень и каждый раз попадает в произвольную точку квадрата.
-    // Надо промоделировать этот процесс с помощью класса java.util.Random и посчитать, какова вероятность попасть в мишень.
+    // Надо промоделировать этот процесс с помощью класса java.util.Random и посчитать,
+    // какова вероятность попасть в мишень.
     public static double piDividedBy4() {
         throw new UnsupportedOperationException();
     }
