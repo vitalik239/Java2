@@ -1,9 +1,10 @@
-package pack;
+package sp;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class LazyFactory {
+    protected LazyFactory() {}
     public static <T> Lazy<T> createLazy(final Supplier<T> s) {
         return new Lazy<T>() {
             private T result = null;
@@ -29,7 +30,7 @@ public class LazyFactory {
                         localSup = supplier;
                         if (localSup != null) {
                             result = supplier.get();
-                            supplier = localSup = null;
+                            supplier = null;
                         }
                     }
                 }
