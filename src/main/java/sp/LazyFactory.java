@@ -1,6 +1,7 @@
 package sp;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.function.Supplier;
 
 public class LazyFactory {
@@ -24,11 +25,9 @@ public class LazyFactory {
             private volatile T result = null;
             private volatile Supplier<T> supplier = s;
             public T get() {
-                Supplier<T> localSup = supplier;
-                if (localSup != null) {
+                if (supplier != null) {
                     synchronized (this) {
-                        localSup = supplier;
-                        if (localSup != null) {
+                        if (supplier != null) {
                             result = supplier.get();
                             supplier = null;
                         }
@@ -40,28 +39,21 @@ public class LazyFactory {
     }
 
     private static class AtomicLazy<T> implements Lazy<T> {
-        private static final Supplier IN_PROCESS = () -> null;
-        private AtomicReference<Supplier<T>> supplierRef;
-        private T result;
+        private static final Object IN_PROCESS = new Object();
+        private static final AtomicReferenceFieldUpdater<AtomicLazy, Object> updater =
+                AtomicReferenceFieldUpdater.newUpdater(AtomicLazy.class, Object.class, "result");
+        private volatile Object result = IN_PROCESS;
+        private Supplier<T> supplier;
 
         AtomicLazy(Supplier<T> s) {
-            supplierRef = new AtomicReference<>(s);
+            supplier = s;
         }
 
         public T get() {
-            Supplier<T> supplier = supplierRef.get();
-            if (supplier == null) {
-                return result;
+            if (result == IN_PROCESS) {
+                updater.compareAndSet(this, IN_PROCESS, supplier.get());
             }
-            T newRes = supplier.get();
-            supplier = supplierRef.getAndUpdate((s) -> (s == null) ? null : IN_PROCESS);
-            if (supplier == null) {
-                return result;
-            } else if (supplier != IN_PROCESS) {
-                result = newRes;
-            }
-            supplierRef.set(null);
-            return result;
+            return (T) result;
         }
     }
 
