@@ -21,7 +21,7 @@ public final class SecondPartTasks {
                 try {
                     return Files.lines(Paths.get(path));
                 } catch (IOException e) {
-                    throw new RuntimeException("Can't open " + path, e);
+                    return Stream.of();
                 }
             }).filter(s -> s.contains(sequence)).collect(Collectors.toList());
         } catch (RuntimeException e) {
@@ -35,13 +35,14 @@ public final class SecondPartTasks {
     // Надо промоделировать этот процесс с помощью класса java.util.Random и посчитать,
     // какова вероятность попасть в мишень.
     public static double piDividedBy4() {
-        final long COUNT = 100000;
+        final long count = 100000;
         final double radius = 0.5;
         Random random = new Random();
         long pos = Stream.generate(() ->
-                Math.pow(random.nextDouble() - radius, 2) + Math.pow(random.nextDouble() - radius, 2) < Math.pow(radius, 2)).
-                limit(COUNT).filter(s -> s).count();
-        return (double) pos / COUNT;
+                Math.pow(random.nextDouble() - radius, 2) + Math.pow(random.nextDouble() - radius, 2)
+                        < Math.pow(radius, 2)).
+                limit(count).filter(s -> s).count();
+        return (double) pos / count;
     }
 
     // Дано отображение из имени автора в список с содержанием его произведений.
