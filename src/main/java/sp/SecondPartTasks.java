@@ -3,10 +3,7 @@ package sp;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,11 +45,14 @@ public final class SecondPartTasks {
     // Дано отображение из имени автора в список с содержанием его произведений.
     // Надо вычислить, чья общая длина произведений наибольшая.
     public static String findPrinter(Map<String, List<String>> compositions) {
-        return compositions.entrySet().stream().max(
-                Comparator.comparing(
-                        e -> e.getValue().stream().mapToInt(String::length).sum()
-                )
-        ).get().getKey();
+        Optional<Map.Entry<String, List<String>>> optional =
+                compositions.entrySet().stream().max(
+                        Comparator.comparing(
+                                e -> e.getValue().stream().mapToInt(String::length).sum()
+                        )
+                );
+
+        return optional.isPresent() ? optional.get().getKey() : null;
     }
 
     // Вы крупный поставщик продуктов. Каждая торговая сеть делает вам заказ в виде Map<Товар, Количество>.

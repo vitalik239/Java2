@@ -22,6 +22,7 @@ public class SecondPartTasksTest {
         List<String> ans = findQuotes(Arrays.asList(files), "Hello");
         ans.sort(Comparator.<String>naturalOrder());
         assertEquals(strings, ans);
+        assertEquals(null, findPrinter(new HashMap()));
     }
 
     @Test
@@ -37,7 +38,6 @@ public class SecondPartTasksTest {
                 "Something's wrong, I can feel it",
                 "Just a feeling I've got"
         );
-
 
         List<String> rihannas = Arrays.asList(
                 "Shine bright like a diamond",
@@ -55,10 +55,14 @@ public class SecondPartTasksTest {
                 "Of this box you put me in.",
                 "Because you don't understand."
         );
+
         Map<String, List<String>> map = new HashMap<>();
-        map.put("Lorde", lordes);
+
         map.put("Eminem", eminems);
         map.put("Rihanna", rihannas);
+        assertEquals("Eminem", findPrinter(map));
+
+        map.put("Lorde", lordes);
         assertEquals("Lorde", findPrinter(map));
     }
 
