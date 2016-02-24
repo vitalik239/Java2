@@ -86,9 +86,9 @@ public final class FirstPartTasks {
     // Список альбомов, отсортированный по убыванию среднего рейтинга его треков (0, если треков нет)
     public static List<Album> sortByAverageRating(Stream<Album> albums) {
         return albums.sorted(
-                Comparator.comparingDouble(
-                        s -> -s.getTracks().stream().mapToInt(Track::getRating).average().orElse(0)
-                )
+                Comparator.<Album>comparingDouble(
+                        s -> s.getTracks().stream().mapToInt(Track::getRating).average().orElse(0)
+                ).reversed()
         ).collect(Collectors.toList());
     }
 
