@@ -13,18 +13,13 @@ public final class SecondPartTasks {
 
     // Найти строки из переданных файлов, в которых встречается указанная подстрока.
     public static List<String> findQuotes(List<String> paths, CharSequence sequence) {
-        try {
-            return paths.stream().flatMap(path -> {
-                try {
-                    return Files.lines(Paths.get(path));
-                } catch (IOException e) {
-                    return Stream.of();
-                }
-            }).filter(s -> s.contains(sequence)).collect(Collectors.toList());
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return paths.stream().flatMap(path -> {
+            try {
+                return Files.lines(Paths.get(path));
+            } catch (IOException e) {
+                return Stream.of();
+            }
+        }).filter(s -> s.contains(sequence)).collect(Collectors.toList());
     }
 
     // В квадрат с длиной стороны 1 вписана мишень.
@@ -45,14 +40,11 @@ public final class SecondPartTasks {
     // Дано отображение из имени автора в список с содержанием его произведений.
     // Надо вычислить, чья общая длина произведений наибольшая.
     public static String findPrinter(Map<String, List<String>> compositions) {
-        Optional<Map.Entry<String, List<String>>> optional =
-                compositions.entrySet().stream().max(
-                        Comparator.comparing(
-                                e -> e.getValue().stream().mapToInt(String::length).sum()
-                        )
-                );
-
-        return optional.isPresent() ? optional.get().getKey() : null;
+        return compositions.entrySet().stream().max(
+                Comparator.comparing(
+                        e -> e.getValue().stream().mapToInt(String::length).sum()
+                )
+        ).map(Map.Entry::getKey).orElse(null);
     }
 
     // Вы крупный поставщик продуктов. Каждая торговая сеть делает вам заказ в виде Map<Товар, Количество>.

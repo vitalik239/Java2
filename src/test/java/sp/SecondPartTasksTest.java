@@ -22,7 +22,7 @@ public class SecondPartTasksTest {
         List<String> ans = findQuotes(Arrays.asList(files), "Hello");
         ans.sort(Comparator.<String>naturalOrder());
         assertEquals(strings, ans);
-        assertEquals(null, findPrinter(new HashMap()));
+        assertEquals(null, findPrinter(Collections.emptyMap()));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class SecondPartTasksTest {
         order.put("tequila", 17);
 
         Map<String, Integer> answer = calculateGlobalOrder(Arrays.asList(alco, rusAl));
-        assertEquals(new HashMap<String, Integer>(), calculateGlobalOrder(new ArrayList<>()));
+        assertEquals(Collections.emptyMap(), calculateGlobalOrder(Collections.emptyList()));
         assertEquals(order, answer);
     }
 }

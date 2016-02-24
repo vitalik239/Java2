@@ -77,7 +77,7 @@ public final class FirstPartTasks {
     // (если в альбоме нет ни одного трека, считать, что максимум рейтинга в нем --- 0)
     public static Optional<Album> minMaxRating(Stream<Album> albums) {
         return albums.min(
-                Comparator.comparing(s ->
+                Comparator.comparingInt(s ->
                                 s.getTracks().stream().mapToInt(Track::getRating).max().orElse(0)
                 )
         );
@@ -87,9 +87,7 @@ public final class FirstPartTasks {
     public static List<Album> sortByAverageRating(Stream<Album> albums) {
         return albums.sorted(
                 Comparator.comparingDouble(
-                        s -> -s.getTracks().stream().collect(
-                            Collectors.summarizingDouble(Track::getRating)
-                        ).getAverage()
+                        s -> -s.getTracks().stream().mapToInt(Track::getRating).average().orElse(0)
                 )
         ).collect(Collectors.toList());
     }
