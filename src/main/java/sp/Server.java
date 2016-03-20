@@ -2,63 +2,104 @@ package sp;
 
 import java.net.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Server {
     private ServerSocket serverSocket;
+    private Path rootPath;
 
-    public Server(int port) {
+    public Server(int port, Path rootPath) {
+        this.rootPath = rootPath;
         try {
             serverSocket = new ServerSocket(port);
-            new Thread(this::start).start();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     public synchronized Socket accept() throws IOException {
+        if ((serverSocket == null) || (serverSocket.isClosed())) {
+            return null;
+        }
         return serverSocket.accept();
     }
 
-    public void start(){
-        while (true) {
-            try {
-                Socket socket;
+    public void start() {
+        new Thread(() -> {
+            while (true) {
                 try {
-                    socket = accept();
+                    Socket socket = accept();
+                    if (socket != null) {
+                        new Thread(() -> workWithSocket(socket)).start();
+                    }
                 } catch (IOException ex) {
                     return;
                 }
-                if (socket != null)
-                    new Thread(() -> workWithSocket(socket)).start();
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            }
+        }).start();
+    }
+
+    public void workWithSocket(Socket socket) {
+        if (socket.isClosed()) {
+            return;
+        }
+        DataInputStream in = null;
+        DataOutputStream out = null;
+        try {
+            in = new DataInputStream(socket.getInputStream());
+            out = new DataOutputStream(socket.getOutputStream());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        while (!socket.isClosed()) {
+            int requestType;
+            try {
+                requestType = in.readInt();
+                Path path = Paths.get(rootPath.toString() + in.readUTF());
+
+                File file = path.toFile();
+
+                if (requestType == Contract.GET) {
+                    if (file.exists() && !file.isDirectory()) {
+                        out.writeLong(file.length());
+                        out.flush();
+                        Files.copy(file.toPath(), out);
+                    } else {
+                        out.writeLong(0);
+                    }
+                } else if (requestType == Contract.LIST) {
+                    if (file.exists() && file.isDirectory()) {
+                        File[] files = file.listFiles();
+                        out.writeLong(files.length);
+                        for (File f : files) {
+                            out.writeUTF(f.getName());
+                            out.writeBoolean(f.isDirectory());
+                            out.flush();
+                        }
+                    } else {
+                        out.writeLong(0);
+                    }
+                } else {
+                     return;
+                }
+            } catch (Exception ex) {
+                return;
             }
         }
     }
 
-    public void workWithSocket(Socket socket) throws IOException {
-        DataInputStream in;
-        DataOutputStream out;
-
-        in = new DataInputStream(socket.getInputStream());
-        out = new DataOutputStream(socket.getOutputStream());
-
-        String line = null;
-
-        while (true) {
-            line = in.readUTF();
-            out.writeUTF(line);
-            out.flush();
-        }
-    }
-
-
     public void stop() {
+        if (serverSocket == null) {
+            return;
+        }
         try {
             serverSocket.close();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        serverSocket = null;
     }
-
 }
