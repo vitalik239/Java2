@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 public class Tests {
     public static final int PORT = 65535;
     public static final String ROOT = "src/test/resources/testfolder";
-    public static final String address = "127.0.0.1";
+    public static final String ADDRESS = "127.0.0.1";
 
     @Test
     public void testList() {
@@ -22,7 +22,7 @@ public class Tests {
         Server server = new Server(port, Paths.get(ROOT));
         server.start();
 
-        Client client = new Client(address, port);
+        Client client = new Client(ADDRESS, port);
         client.connect();
 
         List<FileInfo> list = new ArrayList<>();
@@ -47,7 +47,7 @@ public class Tests {
         Server server = new Server(port, Paths.get(ROOT));
         server.start();
 
-        Client client = new Client(address, port);
+        Client client = new Client(ADDRESS, port);
         client.connect();
 
         Path finalPath = Paths.get(ROOT + "/file4.txt");
