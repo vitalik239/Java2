@@ -1,8 +1,8 @@
 package sp;
 
 public class FileInfo {
-    private String name;
-    private Boolean isDir;
+    private final String name;
+    private final boolean isDir;
     private static final int P = 239017;
 
     FileInfo(String name, Boolean isDir) {
@@ -14,7 +14,7 @@ public class FileInfo {
         return name;
     }
 
-    public Boolean getIsDir() {
+    public boolean getIsDir() {
         return isDir;
     }
 
@@ -24,11 +24,11 @@ public class FileInfo {
             return false;
         }
         FileInfo fileInfo = (FileInfo) obj;
-        return name.equals(fileInfo.name) && isDir.equals(fileInfo.isDir);
+        return name.equals(fileInfo.name) && isDir ^ fileInfo.isDir;
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode() * P + isDir.hashCode();
+        return name.hashCode() * P + (isDir ? 1 : 0);
     }
 }

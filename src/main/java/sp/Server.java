@@ -8,43 +8,33 @@ import java.nio.file.Paths;
 
 public class Server {
     private ServerSocket serverSocket;
-    private Path rootPath;
+    private final Path rootPath;
 
-    public Server(int port, Path rootPath) {
+    public Server(int port, Path rootPath) throws IOException {
         this.rootPath = rootPath;
-        try {
-            serverSocket = new ServerSocket(port);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        serverSocket = new ServerSocket(port);
     }
 
-    public synchronized Socket accept() throws IOException {
-        if ((serverSocket == null) || (serverSocket.isClosed())) {
-            return null;
-        }
+    private synchronized Socket accept() throws IOException {
         return serverSocket.accept();
     }
 
     public void start() {
         new Thread(() -> {
             while (true) {
+                final Socket socket;
                 try {
-                    Socket socket = accept();
-                    if (socket != null) {
-                        new Thread(() -> workWithSocket(socket)).start();
-                    }
+                    socket = accept();
                 } catch (IOException ex) {
+                    ex.printStackTrace();
                     return;
                 }
+                new Thread(() -> workWithSocket(socket)).start();
             }
         }).start();
     }
 
-    public void workWithSocket(Socket socket) {
-        if (socket.isClosed()) {
-            return;
-        }
+    private void workWithSocket(Socket socket) {
         DataInputStream in = null;
         DataOutputStream out = null;
         try {
@@ -65,11 +55,11 @@ public class Server {
                 if (requestType == Contract.GET) {
                     if (file.exists() && !file.isDirectory()) {
                         out.writeLong(file.length());
-                        out.flush();
                         Files.copy(file.toPath(), out);
                     } else {
                         out.writeLong(0);
                     }
+                    out.flush();
                 } else if (requestType == Contract.LIST) {
                     if (file.exists() && file.isDirectory()) {
                         File[] files = file.listFiles();
@@ -77,11 +67,11 @@ public class Server {
                         for (File f : files) {
                             out.writeUTF(f.getName());
                             out.writeBoolean(f.isDirectory());
-                            out.flush();
                         }
                     } else {
                         out.writeLong(0);
                     }
+                    out.flush();
                 } else {
                      return;
                 }
@@ -92,7 +82,7 @@ public class Server {
     }
 
     public void stop() {
-        if (serverSocket == null) {
+        if (serverSocket.isClosed()) {
             return;
         }
         try {
@@ -100,6 +90,5 @@ public class Server {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        serverSocket = null;
     }
 }

@@ -16,26 +16,22 @@ public class Client {
     private InetAddress ipAddress;
     private static final int BUFFER_SIZE = 1024;
 
-    public Client(String address, int serverPort) {
+    public Client(String address, int serverPort) throws UnknownHostException {
         this.serverPort = serverPort;
-        try {
-            ipAddress = InetAddress.getByName(address);
-        } catch (UnknownHostException ex) {
-            ex.printStackTrace();
-        }
+        ipAddress = InetAddress.getByName(address);
     }
 
-    public void connect() {
+    public void connect() throws IOException {
         try {
             socket = new Socket(ipAddress, serverPort);
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw ex;
         }
     }
 
-    public void sendGet(String serverPath, Path savePath) {
+    public void sendGet(String serverPath, Path savePath) throws IOException {
         try {
             out.writeInt(Contract.GET);
             out.writeUTF(serverPath);
@@ -49,16 +45,17 @@ public class Client {
             int cnt;
             OutputStream output = Files.newOutputStream(savePath);
             try {
-                while ((size > 0) && ((cnt = in.read(buffer)) > -1)) {
+                while (size > 0 && (cnt = in.read(buffer)) > -1) {
                     size -= cnt;
                     output.write(buffer, 0, cnt);
                 }
             } catch (IOException ex) {
-                ex.printStackTrace();
+                throw ex;
+            } finally {
+                output.close();
             }
-
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw ex;
         }
     }
 
@@ -83,13 +80,7 @@ public class Client {
         return list;
     }
 
-    public void disconnect() {
-        try {
-            in.close();
-            out.close();
-            socket.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+    public void disconnect() throws IOException {
+        socket.close();
     }
 }
