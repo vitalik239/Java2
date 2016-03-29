@@ -25,11 +25,11 @@ public class Server {
                 final Socket socket;
                 try {
                     socket = accept();
+                    new Thread(() -> workWithSocket(socket)).start();
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     return;
                 }
-                new Thread(() -> workWithSocket(socket)).start();
             }
         }).start();
     }
@@ -42,6 +42,7 @@ public class Server {
             out = new DataOutputStream(socket.getOutputStream());
         } catch (IOException ex) {
             ex.printStackTrace();
+            return;
         }
 
         while (!socket.isClosed()) {
